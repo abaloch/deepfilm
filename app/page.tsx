@@ -19,7 +19,7 @@ export default function LandingPage() {
       <main className="container mx-auto px-4 mt-20">
         <h1 className="text-[64px] leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
         <p className="text-xl text-gray-400 mt-4 mb-8 max-w-2xl">
-          Coming soon.
+          Coming soon
         </p>
 
         {/* Split Image Section */}
