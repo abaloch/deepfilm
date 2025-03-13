@@ -17,7 +17,7 @@ export default function LandingPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 mt-20">
-        <h1 className="text-[64px] md:text-[48px] sm:text-[32px]leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
+        <h1 className="text-[64px] md:text-[36px] sm:text-[24px]leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
         <p className="text-xl text-gray-400 mt-4 mb-8 max-w-2xl">
           Coming soon
         </p>
@@ -28,7 +28,7 @@ export default function LandingPage() {
             <img
               src="https://sosafe-awareness.com/sosafe-files/uploads/2022/08/Comparison_deepfake_blogpost_EN.jpg"
               alt="Technology visualization"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
