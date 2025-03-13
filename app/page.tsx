@@ -17,14 +17,14 @@ export default function LandingPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 mt-20">
-        <h1 className="text-[64px] leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
+        <h1 className="text-[64px] md:text-[48px] sm:text-[32px]leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
         <p className="text-xl text-gray-400 mt-4 mb-8 max-w-2xl">
           Coming soon
         </p>
 
         {/* Split Image Section */}
         <div className="mt-12 mb-16 rounded-3xl overflow-hidden border border-gray-800">
-          <div className="relative w-full h-[500px]">
+          <div className="relative w-full h-[500px] md:h-[400px] sm:h-[300px]">
             <img
               src="https://sosafe-awareness.com/sosafe-files/uploads/2022/08/Comparison_deepfake_blogpost_EN.jpg"
               alt="Technology visualization"
