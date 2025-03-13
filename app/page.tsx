@@ -17,7 +17,7 @@ export default function LandingPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 mt-20">
-        <h1 className="text-8xl md:text-3xl sm:text-xl leading-[1.1] font-medium tracking-tight max-w-4xl">Revolutionary AI face-swapping and de-aging tech for film. </h1>
+        <h1 className="text-5xl md:text-5xl sm:text-5xl leading-[1.1] font-medium tracking-tight max-w-4xl">Innovative AI face-swapping and de-aging tech for film. </h1>
         <p className="text-xl text-gray-400 mt-4 mb-8 max-w-2xl">
           Coming soon
         </p>
