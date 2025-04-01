@@ -16,7 +16,7 @@ export default function Generate() {
         setLoading(true);
 
         try {
-          const res = await fetch('http://127.0.0.1:5000/generate-video', {
+          const res = await fetch('/api/generate-video', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
