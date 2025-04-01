@@ -6,6 +6,10 @@ import { UserIcon } from '@heroicons/react/24/outline';
 
 
 export default function Generate() {
+
+  const stabilityAiKey = process.env.NEXT_PUBLIC_STABILITY_AI_KEY;
+  const runwaymlKey = process.env.NEXT_PUBLIC_RUNWAYML_KEY;
+
     const router = useRouter();
 
     const [prompt, setPrompt] = useState('');
@@ -27,8 +31,8 @@ export default function Generate() {
                 },
                 body: JSON.stringify({
                     prompt,
-                    stability_ai_key: process.env.STABILITY_AI_KEY,
-                    runwayml_key: process.env.RUNWAYML_KEY
+                    stability_ai_key: stabilityAiKey,
+                    runwayml_key: runwaymlKey
                 }),
             });
 
