@@ -7,8 +7,7 @@ import { UserIcon } from '@heroicons/react/24/outline';
 
 export default function Generate() {
 
-  const stabilityAiKey = process.env.NEXT_PUBLIC_STABILITY_AI_KEY;
-  const runwaymlKey = process.env.NEXT_PUBLIC_RUNWAYML_KEY;
+  
 
     const router = useRouter();
 
@@ -24,6 +23,8 @@ export default function Generate() {
 
         try {
             // Call the Google Cloud Function directly
+            const stabilityAiKey = process.env.NEXT_PUBLIC_STABILITY_AI_KEY;
+  const runwaymlKey = process.env.NEXT_PUBLIC_RUNWAYML_KEY;
             const res = await fetch('https://deepfilm-615767718304.us-west2.run.app', {
                 method: 'POST',
                 headers: {
