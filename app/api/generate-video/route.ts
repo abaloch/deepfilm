@@ -1,6 +1,21 @@
 // pages/api/generate-video.js
-import { GoogleAuth } from 'google-auth-library';
+import { GoogleAuth, Credentials } from 'google-auth-library';
 import { NextRequest, NextResponse } from 'next/server';
+
+interface ExternalAccountCredentials extends Credentials {
+  type: string;
+  audience: string;
+  subject_token_type: string;
+  token_url: string;
+  service_account_impersonation_url: string;
+  credential_source: {
+    file: string;
+    format: {
+      type: string;
+      subject_token_field_name: string;
+    };
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,7 +44,7 @@ export async function POST(req: NextRequest) {
               subject_token_field_name: 'access_token'
             }
           }
-        } as any
+        } as ExternalAccountCredentials
       }
     });
 
