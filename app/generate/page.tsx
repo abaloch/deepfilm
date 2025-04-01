@@ -15,28 +15,46 @@ export default function Generate() {
         e.preventDefault();
         setLoading(true);
 
+        
+
+
         try {
-          const res = await fetch('/api/generate-video', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt }),
-          });
-    
-          const data = await res.json();
-          if (data.video_url) {
-            // Navigate to the new page with the video URL
-            router.push(`/video?videoUrl=${encodeURIComponent(data.video_url)}`);
-          } else {
-            console.error('Error:', data.error);
-          }
+            // Call the Google Cloud Function directly
+            const res = await fetch('https://deepfilm-615767718304.us-west2.run.app', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt,
+                    stability_ai_key: process.env.STABILITY_AI_KEY,
+                    runwayml_key: process.env.RUNWAYML_KEY
+                }),
+            });
+
+            console.log('Response status:', res.status);
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error('Failed to call Cloud Function:', errorText);
+                throw new Error(`Failed to call Cloud Function: ${errorText}`);
+            }
+
+            const data = await res.json();
+            console.log('Response data:', data);
+
+            if (data.video_url) {
+                // Navigate to the new page with the video URL
+                router.push(`/video?videoUrl=${encodeURIComponent(data.video_url)}`);
+            } else {
+                console.error('Error:', data.error);
+            }
         } catch (error) {
-          console.error('Error:', error);
+            console.error('Error:', error);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
   return (
     <div className="relative w-full min-h-screen bg-black text-white">

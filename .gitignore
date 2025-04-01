@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 google-cloud-sdk-458.0.1-darwin-x86_64.tar.gz
+
+# local environment variables
+.env.local
+
+
