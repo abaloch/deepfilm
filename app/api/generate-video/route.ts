@@ -4,34 +4,48 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_PROJECT_ID) {
-      console.error('Missing environment variables:', {
-        hasClientEmail: !!process.env.GOOGLE_CLIENT_EMAIL,
-        hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY,
-        hasProjectId: !!process.env.GOOGLE_PROJECT_ID
-      });
-      return NextResponse.json({ error: 'Missing required environment variables' }, { status: 500 });
+    if (!process.env.WORKLOAD_IDENTITY_PROVIDER) {
+      return NextResponse.json({ 
+        error: 'Missing Workload Identity Provider configuration',
+        details: 'Please check environment variables'
+      }, { status: 500 });
     }
 
-    // Create an auth client
+    // Create an auth client using Workload Identity Federation
     const auth = new GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        project_id: process.env.GOOGLE_PROJECT_ID,
-      },
       scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      clientOptions: {
+        projectId: 'planar-courage-368523',
+        credentials: {
+          type: 'external_account',
+          audience: process.env.WORKLOAD_IDENTITY_PROVIDER,
+          subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
+          token_url: 'https://sts.googleapis.com/v1/token',
+          service_account_impersonation_url: 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/deepfilm-vercel-sa@planar-courage-368523.iam.gserviceaccount.com:generateAccessToken',
+          credential_source: {
+            file: '.token.value',
+            format: {
+              type: 'json',
+              subject_token_field_name: 'access_token'
+            }
+          }
+        } as any
+      }
     });
 
     // Get the access token
     const client = await auth.getClient();
     const token = await client.getAccessToken();
+    
+    if (!token.token) {
+      throw new Error('Failed to generate access token');
+    }
 
     const requestBody = await req.json();
     console.log('Request body:', requestBody);
 
     // Forward the request to Cloud Run
-    const response = await fetch('https://deepfilm-615767718304.us-west2.run.app', {
+    const response = await fetch('https://deepfilm-34hzw7pykq-wl.a.run.app', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,17 +59,15 @@ export async function POST(req: NextRequest) {
       console.error('Cloud Run error:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorText,
-        headers: Object.fromEntries(response.headers.entries()),
-        requestBody: requestBody
+        body: errorText
       });
       return NextResponse.json({ error: 'Cloud Run service error', details: errorText }, { status: response.status });
     }
 
     const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Detailed error:', error);
+    console.error('Error:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
