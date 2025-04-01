@@ -27,14 +27,17 @@ export async function POST(req: NextRequest) {
     const client = await auth.getClient();
     const token = await client.getAccessToken();
 
+    const requestBody = await req.json();
+    console.log('Request body:', requestBody);
+
     // Forward the request to Cloud Run
-    const response = await fetch('https://deepfilm-615767718304.us-west2.run.app/generate-video', {
+    const response = await fetch('https://deepfilm-615767718304.us-west2.run.app', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token.token}`,
       },
-      body: JSON.stringify(await req.json()),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -42,7 +45,9 @@ export async function POST(req: NextRequest) {
       console.error('Cloud Run error:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: errorText,
+        headers: Object.fromEntries(response.headers.entries()),
+        requestBody: requestBody
       });
       return NextResponse.json({ error: 'Cloud Run service error', details: errorText }, { status: response.status });
     }
