@@ -5,6 +5,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_PROJECT_ID) {
+      console.error('Missing environment variables:', {
+        hasClientEmail: !!process.env.GOOGLE_CLIENT_EMAIL,
+        hasPrivateKey: !!process.env.GOOGLE_PRIVATE_KEY,
+        hasProjectId: !!process.env.GOOGLE_PROJECT_ID
+      });
       return NextResponse.json({ error: 'Missing required environment variables' }, { status: 500 });
     }
 
@@ -32,10 +37,23 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(await req.json()),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Cloud Run error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      return NextResponse.json({ error: 'Cloud Run service error', details: errorText }, { status: response.status });
+    }
+
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Detailed error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
