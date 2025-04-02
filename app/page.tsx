@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react'
+//notes
 
 export default function LandingPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
