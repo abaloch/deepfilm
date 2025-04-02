@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserIcon } from '@heroicons/react/24/outline';
 
 
 export default function Generate() {

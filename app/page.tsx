@@ -1,7 +1,5 @@
 'use client';
 
-import { SignInButton, SignedOut, UserButton, SignedIn} from "@clerk/nextjs"
-import { Button } from "@/components/ui/button"
 import { useEffect, useRef } from 'react'
 
 export default function LandingPage() {
