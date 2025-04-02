@@ -45,3 +45,6 @@ google-cloud-sdk-458.0.1-darwin-x86_64.tar.gz
 .env.local
 
 
+
+# clerk configuration (can include secrets)
+/.clerk/

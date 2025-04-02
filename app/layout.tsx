@@ -1,25 +1,65 @@
+'use client'
+
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { ClerkProvider } from '@clerk/nextjs'
+import { SignedIn, UserButton, SignedOut, SignInButton } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
+import { dark } from "@clerk/themes"
+import { usePathname } from 'next/navigation'
+
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "DeepFilm - Revolutionary Deepfake Technology for Film",
-  description: "Transform your films with AI-powered face swapping and de-aging technology",
-    generator: 'v0.dev'
-}
+
+
+
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const pathname = usePathname()
+  const isAuthPage = pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up')
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <ClerkProvider appearance={{
+      baseTheme: dark,
+    }}>
+      <html lang="en">
+        <body className={inter.className}>
+          <header className="mx-auto py-4 px-4 flex justify-between items-center bg-black ">
+          <div className="flex items-center">
+          <span className="text-xl font-medium tracking-tight">DEEPFILM</span>
+        </div>
+        <div className="flex-grow">
+            </div> 
+        
+        <div className="">
+        {!isAuthPage && (
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <Button variant="default" className="bg-white text-black hover:bg-white/90 rounded-full px-6">
+                        Login
+                      </Button>
+                    </SignInButton>
+                  </SignedOut>
+                )}
+          <SignedIn>
+            <UserButton>
+          
+            </UserButton>
+          </SignedIn>
+        </div>
+          
+          </header>
+          
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
 

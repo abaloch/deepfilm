@@ -62,7 +62,7 @@ export default function Generate() {
     };
 
   return (
-    <div className="relative w-full min-h-screen bg-black text-white">
+    <div className="relative w-full min-h-screen text-white">
       <video
         className="absolute top-0 left-0 w-full h-full object-cover"
         src="/beautiful-woman-closeup.mp4"  // Ensure this path matches your file name
@@ -72,17 +72,7 @@ export default function Generate() {
       ></video>
 
       <div className="relative z-10">
-        <header className=" py-6 px-4 flex items-center">
-          <div className="flex items-center">
-            <span className="text-xl font-medium tracking-tight">DEEPFILM</span>
-          </div>
-          <div className="flex-grow">
-            </div> 
-
-          <div className="ml-auto flex items-center">
-    <UserIcon className="w-6 h-6 text-white cursor-pointer bg-black border-2  shadow-lg border-black rounded-full" style={{ width: '40px', height: '40px', padding: '4px', backgroundColor: 'rgba(0, 0, 0, 0.80)' }} />
-  </div>
-        </header>
+        
       
         <div className="w-full flex items-center justify-center min-h-screen">
           <div
