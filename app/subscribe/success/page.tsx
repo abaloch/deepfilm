@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function SuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
@@ -23,14 +23,29 @@ export default function SuccessPage() {
   }, [sessionId, router]);
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center">
-        <div className="mb-8">
-          <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
-          <h1 className="text-4xl font-light tracking-wider text-white mb-2">SUCCESS</h1>
-          <p className="text-white/60 text-sm tracking-widest">REDIRECTING</p>
-        </div>
+    <div className="text-center">
+      <div className="mb-8">
+        <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
+        <h1 className="text-4xl font-light tracking-wider text-white mb-2">SUCCESS</h1>
+        <p className="text-white/60 text-sm tracking-widest">REDIRECTING</p>
       </div>
+    </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <Suspense fallback={
+        <div className="text-center">
+          <div className="mb-8">
+            <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
+            <h1 className="text-4xl font-light tracking-wider text-white mb-2">LOADING</h1>
+          </div>
+        </div>
+      }>
+        <SuccessContent />
+      </Suspense>
     </div>
   );
 } 
