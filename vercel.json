@@ -1,3 +1,0 @@
-{
-  "buildCommand": "SKIP_LINT=true next build"
-} 
