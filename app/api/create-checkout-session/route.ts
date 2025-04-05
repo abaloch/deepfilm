@@ -72,11 +72,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ clientSecret: session.client_secret });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     console.error('ERROR in checkout session creation:', error);
-    return NextResponse.json({ 
-      error: error.message,
-      stack: error.stack 
-    }, { status: 500 });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

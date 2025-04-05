@@ -2,7 +2,7 @@ import { stripe } from '@/lib/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const { userId } = await auth();
     
@@ -37,10 +37,8 @@ export async function GET(req: Request) {
         hosted_invoice_url: invoice.hosted_invoice_url,
       }))
     });
-  } catch (error: any) {
-    console.error('Error fetching invoices:', error);
-    return NextResponse.json({ 
-      error: error.message 
-    }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 

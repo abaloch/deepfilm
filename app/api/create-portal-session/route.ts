@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     console.log('Starting portal session creation...');
     
@@ -47,10 +47,9 @@ export async function POST(req: Request) {
 
     console.log('Portal session created:', session.url);
     return NextResponse.json({ url: session.url });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     console.error('Error creating portal session:', error);
-    return NextResponse.json({ 
-      error: error.message 
-    }, { status: 500 });
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
