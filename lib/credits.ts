@@ -1,8 +1,25 @@
-import { supabase } from '@/lib/supabase';
+'use client';
+
+import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export const CREDITS_PER_MONTH = {
-  basic: 6
-} as const;
+  basic: 10,
+  pro: 50,
+  enterprise: 200
+};
+
+export const PRICE_IDS = {
+  basic: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY',
+  pro: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY',
+  enterprise: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY'
+};
 
 export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'inactive';
 
@@ -99,7 +116,7 @@ export async function updateSubscriptionStatus(
   status: SubscriptionStatus,
   subscriptionId?: string
 ) {
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     subscription_status: status
   };
 
@@ -226,4 +243,47 @@ export async function canGenerateVideo(clerkId: string): Promise<{ canGenerate: 
   }
 
   return { canGenerate: true };
+}
+
+export function useCreditsHook() {
+  const { userId } = useAuth();
+  const [credits, setCredits] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCredits() {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { credits: remainingCredits } = await getRemainingCredits(userId);
+        setCredits(remainingCredits);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch credits');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCredits();
+  }, [userId]);
+
+  const deductCredits = async (amount: number) => {
+    if (!userId) return false;
+
+    try {
+      await useCredits(userId, amount);
+      const { credits: remainingCredits } = await getRemainingCredits(userId);
+      setCredits(remainingCredits);
+      return true;
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to deduct credits');
+      return false;
+    }
+  };
+
+  return { credits, loading, error, deductCredits };
 } 

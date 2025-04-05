@@ -1,6 +1,7 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { useCredits, canGenerateVideo } from '@/lib/credits';
+import { getCredits, updateCredits } from '@/lib/credits';
 
 const STABILITY_AI_KEY = process.env.NEXT_PUBLIC_STABILITY_AI_KEY || process.env.STABILITY_AI_KEY;
 const RUNWAYML_KEY = process.env.RUNWAYML_KEY;
@@ -23,23 +24,25 @@ if (!STABILITY_AI_KEY || !RUNWAYML_KEY) {
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     const body = await req.json();
     const { prompt } = body;
 
     if (!prompt) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+      return new NextResponse('Prompt is required', { status: 400 });
     }
 
-    // Check if user can generate a video
-    const { canGenerate, message } = await canGenerateVideo(userId);
-    if (!canGenerate) {
-      return NextResponse.json({ error: message }, { status: 400 });
+    // Check and update credits
+    const currentCredits = await getCredits(userId);
+    if (currentCredits <= 0) {
+      return new NextResponse('Insufficient credits', { status: 403 });
     }
+
+    // Update credits
+    await updateCredits(userId, -1);
 
     // Generate video using Runway
     const response = await fetch('https://api.runwayml.com/v1/generate', {
@@ -69,6 +72,7 @@ export async function POST(req: Request) {
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('[GENERATE_ERROR]', error);
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 
