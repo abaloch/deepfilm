@@ -150,7 +150,7 @@ export default function LandingPage() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center',
-                padding: '48px',
+                padding: '24px',
                 width: '100%',
                 maxWidth: '800px',
                 background: 'black',
@@ -158,8 +158,9 @@ export default function LandingPage() {
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                 borderRadius: '24px',
-                height: '280px',
-                marginBottom: '32px'
+                minHeight: '280px',
+                marginBottom: '32px',
+                boxSizing: 'border-box'
               }}>
                 <div style={{
                   display: 'flex',
@@ -184,13 +185,17 @@ export default function LandingPage() {
                   fontSize: '28px',
                   fontWeight: '600',
                   marginBottom: '16px',
-                  color: 'white'
+                  color: 'white',
+                  padding: '0 16px'
                 }}>Write a Prompt</h3>
                 <p style={{ 
                   fontSize: '18px',
                   lineHeight: '1.6',
                   color: 'rgba(255, 255, 255, 0.8)',
-                  maxWidth: '600px'
+                  maxWidth: '600px',
+                  padding: '0 16px',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word'
                 }}>
                   Describe your vision in natural language. Be specific about scenes, actions, and style.
                 </p>
@@ -202,7 +207,7 @@ export default function LandingPage() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center',
-                padding: '48px',
+                padding: '24px',
                 width: '100%',
                 maxWidth: '800px',
                 background: 'black',
@@ -210,8 +215,9 @@ export default function LandingPage() {
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                 borderRadius: '24px',
-                height: '280px',
-                marginBottom: '32px'
+                minHeight: '280px',
+                marginBottom: '32px',
+                boxSizing: 'border-box'
               }}>
                 <div style={{
                   display: 'flex',
@@ -236,13 +242,17 @@ export default function LandingPage() {
                   fontSize: '28px',
                   fontWeight: '600',
                   marginBottom: '16px',
-                  color: 'white'
+                  color: 'white',
+                  padding: '0 16px'
                 }}>Generate</h3>
                 <p style={{ 
                   fontSize: '18px',
                   lineHeight: '1.6',
                   color: 'rgba(255, 255, 255, 0.8)',
-                  maxWidth: '600px'
+                  maxWidth: '600px',
+                  padding: '0 16px',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word'
                 }}>
                   Our AI transforms your description into a cinematic video, frame by frame.
                 </p>
@@ -254,7 +264,7 @@ export default function LandingPage() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 textAlign: 'center',
-                padding: '48px',
+                padding: '24px',
                 width: '100%',
                 maxWidth: '800px',
                 background: 'black',
@@ -262,7 +272,8 @@ export default function LandingPage() {
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                 borderRadius: '24px',
-                height: '280px'
+                minHeight: '280px',
+                boxSizing: 'border-box'
               }}>
                 <div style={{
                   display: 'flex',
@@ -287,13 +298,17 @@ export default function LandingPage() {
                   fontSize: '28px',
                   fontWeight: '600',
                   marginBottom: '16px',
-                  color: 'white'
+                  color: 'white',
+                  padding: '0 16px'
                 }}>Download</h3>
                 <p style={{ 
                   fontSize: '18px',
                   lineHeight: '1.6',
                   color: 'rgba(255, 255, 255, 0.8)',
-                  maxWidth: '600px'
+                  maxWidth: '600px',
+                  padding: '0 16px',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word'
                 }}>
                   Get your high-quality video, uniquely crafted and ready for your project.
                 </p>
