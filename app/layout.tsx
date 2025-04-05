@@ -6,6 +6,7 @@ import "./globals.css"
 import { ClerkProvider } from '@clerk/nextjs'
 import { SignedIn, UserButton, SignedOut, SignInButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
+import { light } from "@clerk/themes"
 import { usePathname } from 'next/navigation'
 import AccountButton from '@/components/AccountButton'
 
@@ -23,7 +24,9 @@ export default function RootLayout({
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/sign-in') || pathname?.startsWith('/sign-up')
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{
+      baseTheme: light,
+    }}>
       <html lang="en" className={inter.className}>
         <body className="min-h-screen bg-white text-black">
           <header className="mx-auto px-4 flex justify-between items-center bg-black text-white" style={{ padding: '8px' }}>

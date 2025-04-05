@@ -1,45 +1,36 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-function SuccessContent() {
+export default function SuccessPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    if (sessionId) {
-      // Handle successful subscription
-      console.log('Subscription successful:', sessionId);
+    if (!sessionId) {
+      console.error('No session ID found');
+      return;
     }
-  }, [sessionId]);
+
+    // Redirect to generate page after a short delay
+    const timer = setTimeout(() => {
+      router.push('/generate');
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [sessionId, router]);
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+    <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-light mb-4">Thank You!</h1>
-        <p className="text-xl text-white/60 mb-8">
-          Your subscription has been confirmed.
-        </p>
-        <p className="text-white/60">
-          You can now start generating videos with your new credits.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default function SuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-light mb-4">Loading...</h1>
+        <div className="mb-8">
+          <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
+          <h1 className="text-4xl font-light tracking-wider text-white mb-2">SUCCESS</h1>
+          <p className="text-white/60 text-sm tracking-widest">REDIRECTING</p>
         </div>
       </div>
-    }>
-      <SuccessContent />
-    </Suspense>
+    </div>
   );
 } 
