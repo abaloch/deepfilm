@@ -88,16 +88,22 @@ export default function LandingPage() {
               <video 
                 ref={videoRef}
                 src="/beautiful-woman-closeup.mp4" 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
+                autoPlay={true}
+                loop={true}
+                muted={true}
+                playsInline={true}
                 preload="auto"
+                poster="/woman-closeup.png"
                 className="w-full h-full object-cover"
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  // If video fails to load, hide it and show the fallback image
+                  const videoElement = e.currentTarget;
+                  videoElement.style.display = 'none';
                 }}
               >
                 Your browser does not support the video tag.

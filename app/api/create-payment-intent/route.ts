@@ -10,6 +10,10 @@ export async function POST() {
     // Get the price from your Stripe pricing table
     const price = await stripe.prices.retrieve('price_1R9ZdBPfnvEhFMZfpu6G5mvY');
     
+    if (!price.unit_amount) {
+      throw new Error('Price unit amount is missing');
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price.unit_amount,
       currency: price.currency,
