@@ -38,9 +38,12 @@ export default function LandingPage() {
       const checkSubscription = async () => {
         try {
           const response = await fetch('/api/subscription-status');
+          if (!response.ok) {
+            throw new Error('Failed to fetch subscription status');
+          }
           const data = await response.json();
           
-          if (data.subscriptionStatus === 'active') {
+          if (data.subscriptionStatus === 'active' || data.subscriptionStatus === 'trialing') {
             router.push('/generate');
           }
         } catch (error) {

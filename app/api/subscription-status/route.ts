@@ -6,10 +6,7 @@ export async function GET() {
   try {
     const { userId } = await auth();
     
-    console.log('Checking subscription status for userId:', userId);
-    
     if (!userId) {
-      console.log('No userId found, returning unauthorized');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -22,13 +19,6 @@ export async function GET() {
       .select('*')
       .eq('clerk_id', userId);
 
-    console.log('Supabase query result:', {
-      userId,
-      users,
-      error,
-      query: `SELECT * FROM users WHERE clerk_id = '${userId}'`
-    });
-
     if (error) {
       console.error('Error fetching user data:', error);
       return NextResponse.json(
@@ -39,8 +29,6 @@ export async function GET() {
 
     // If no user found, create a new user with default values
     if (!users || users.length === 0) {
-      console.log('No user found in database for userId:', userId);
-      
       // Create a new user
       const { data: newUser, error: insertError } = await supabase
         .from('users')
@@ -60,7 +48,6 @@ export async function GET() {
         );
       }
 
-      console.log('Created new user:', newUser);
       return NextResponse.json({
         subscriptionStatus: 'inactive',
         credits: 0
@@ -68,7 +55,6 @@ export async function GET() {
     }
 
     const user = users[0];
-    console.log('Found user in database:', user);
     
     return NextResponse.json({
       subscriptionStatus: user.subscription_status || 'inactive',

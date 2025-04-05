@@ -78,13 +78,13 @@ export default function AccountButton() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 bg-white p-0" style={{ backgroundColor: 'white', color: 'black', borderRadius: '10px', overflow: 'hidden' , border: '0px solid rgb(255, 255, 255)'}}>
-        <DropdownMenuItem className="hover:bg-gray-50 bg-white">
+        <DropdownMenuItem className="hover:bg-gray-50 bg-white" onClick={() => router.push('/subscribe')}>
           <div className="flex flex-col p-4 w-full">
             <span className="text-gray-900 font-medium" style={{ padding: '12px', fontSize: '14px' }}>Get More Credits</span>
           </div>
         </DropdownMenuItem>
         {subscriptionStatus !== 'inactive' && (
-          <DropdownMenuItem className="hover:bg-gray-50 bg-white" style={{ borderTop: '1px solid rgb(229, 231, 235)' }}>
+          <DropdownMenuItem className="hover:bg-gray-50 bg-white" style={{ borderTop: '1px solid rgb(229, 231, 235)' }} onClick={handleBillingClick}>
             <span className="text-gray-900 font-medium p-4 w-full" style={{ padding: '12px', fontSize: '14px' }}>Manage Subscription</span>
           </DropdownMenuItem>
         )}
