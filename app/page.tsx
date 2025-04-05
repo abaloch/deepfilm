@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import PricingTable from '@/components/PricingTable';
 import { Inter } from 'next/font/google';
+import { SignInButton } from '@clerk/nextjs';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -55,7 +56,16 @@ export default function LandingPage() {
   return (
     <div className={`bg-black min-h-screen text-white flex flex-col ${inter.className}`}>
       {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
       
+            <div className="flex items-center">
+              
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 mt-20">
@@ -84,13 +94,13 @@ export default function LandingPage() {
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
               border: '1px solid rgba(255, 255, 255, 0.1)'
             }}>
-              <video 
+              <video
                 ref={videoRef}
                 src="/beautiful-woman-closeup.mp4" 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
+                autoPlay={true}
+                loop={true}
+                muted={true}
+                playsInline={true}
                 preload="auto"
                 className="w-full h-full object-cover"
                 style={{
