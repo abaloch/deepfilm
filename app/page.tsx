@@ -6,7 +6,6 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Inter } from 'next/font/google';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 // more notes added just so i can commit
 
 const inter = Inter({ subsets: ['latin'] });
