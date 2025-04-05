@@ -1,138 +1,103 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useAuth } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
-
-const CREDITS_PER_MONTH = {
-  basic: 10,
-  pro: 50,
-  enterprise: 200
-};
-
-const PRICE_IDS = {
-  basic: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY',
-  pro: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY',
-  enterprise: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY'
-};
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
+import { useEffect } from 'react';
 
 const plans = [
   {
-    name: 'Basic',
-    price: '$9',
-    period: '/month',
+    name: 'Free',
+    price: '$0',
+    description: 'Perfect for trying out DeepFilm',
     features: [
-      '10 video generations per month',
-      'HD quality videos',
-      'Basic editing tools',
-      'Email support'
+      '5 free credits',
+      'Basic video generation',
+      'Standard quality output',
+      'Community support'
     ],
     buttonText: 'Get Started',
-    popular: false
+    buttonVariant: 'outline' as const,
+    credits: 5
   },
   {
     name: 'Pro',
     price: '$29',
-    period: '/month',
+    description: 'For serious creators',
     features: [
-      '50 video generations per month',
-      '4K quality videos',
-      'Advanced editing tools',
+      '100 credits per month',
+      'Priority video generation',
+      'High quality output',
       'Priority support',
-      'Custom styles'
+      'Custom video styles'
     ],
-    buttonText: 'Get Started',
-    popular: true
+    buttonText: 'Subscribe',
+    buttonVariant: 'default' as const,
+    credits: 100
   },
   {
     name: 'Enterprise',
     price: 'Custom',
-    period: '',
+    description: 'For businesses and teams',
     features: [
-      'Unlimited video generations',
-      '4K quality videos',
-      'Advanced editing tools',
+      'Unlimited credits',
       'Dedicated support',
-      'Custom styles',
-      'API access'
+      'Custom integrations',
+      'Team management',
+      'API access',
+      'Custom video styles'
     ],
     buttonText: 'Contact Us',
-    popular: false
+    buttonVariant: 'outline' as const,
+    credits: 'unlimited'
   }
 ];
 
 export default function PricingTable() {
-  const { userId } = useAuth();
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
 
-  const handleSubscribe = async (plan: keyof typeof CREDITS_PER_MONTH) => {
-    if (!userId) return;
-
-    try {
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: PRICE_IDS[plan],
-          plan,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const { url } = await response.json();
-      window.location.href = url;
-    } catch (error) {
-      console.error('Error:', error);
+  const handlePlanSelect = (plan: typeof plans[0]) => {
+    if (isSignedIn) {
+      router.push('/generate');
+    } else {
+      router.push('/sign-up');
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-20">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-light mb-4">Choose Your Plan</h2>
-        <p className="text-xl text-white/60">Select the perfect plan for your creative needs</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-light tracking-wider mb-4">Choose Your Plan</h2>
+        <p className="text-xl text-white/60">
+          Select the perfect plan for your video creation needs
+        </p>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`rounded-2xl p-8 ${
-              plan.popular
-                ? 'bg-white/10 border border-white/20'
-                : 'bg-black/50 border border-white/10'
-            }`}
+            className="bg-white/5 rounded-lg p-8 flex flex-col"
           >
-            {plan.popular && (
-              <div className="bg-white text-black text-sm font-medium px-3 py-1 rounded-full inline-block mb-4">
-                Most Popular
-              </div>
-            )}
-            <h3 className="text-2xl font-light mb-2">{plan.name}</h3>
-            <div className="flex items-baseline mb-6">
-              <span className="text-4xl font-light">{plan.price}</span>
-              <span className="text-white/60 ml-1">{plan.period}</span>
+            <div className="flex-1">
+              <h3 className="text-2xl font-light mb-2">{plan.name}</h3>
+              <p className="text-4xl font-light mb-4">{plan.price}</p>
+              <p className="text-white/60 mb-6">{plan.description}</p>
+              <ul className="space-y-4 mb-8">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-2" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-4 mb-8">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start">
-                  <Check className="w-5 h-5 text-white/60 mr-2 mt-0.5" />
-                  <span className="text-white/80">{feature}</span>
-                </li>
-              ))}
-            </ul>
             <Button
-              className={`w-full ${
-                plan.popular
-                  ? 'bg-white text-black hover:bg-white/90'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-              onClick={() => handleSubscribe(plan.name.toLowerCase() as keyof typeof CREDITS_PER_MONTH)}
+              variant={plan.buttonVariant}
+              className="w-full"
+              onClick={() => handlePlanSelect(plan)}
             >
               {plan.buttonText}
             </Button>

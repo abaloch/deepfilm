@@ -25,24 +25,29 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { prompt } = body;
+    // Get user's current credits
+    const { credits, subscription_status } = await getCredits(userId);
 
-    if (!prompt) {
-      return new NextResponse('Prompt is required', { status: 400 });
+    // Check if user has sufficient credits and active subscription
+    if (credits < 1) {
+      return NextResponse.json(
+        { error: 'Insufficient credits. Please upgrade your subscription.' },
+        { status: 403 }
+      );
     }
 
-    // Check and update credits
-    const currentCredits = await getCredits(userId);
-    if (currentCredits <= 0) {
-      return new NextResponse('Insufficient credits', { status: 403 });
+    if (subscription_status !== 'active' && subscription_status !== 'trialing') {
+      return NextResponse.json(
+        { error: 'Your subscription is not active. Please check your subscription status.' },
+        { status: 403 }
+      );
     }
 
-    // Update credits
-    await updateCredits(userId, -1);
+    // Deduct one credit
+    await updateCredits(userId, credits - 1);
 
     // Generate video using Runway
     const response = await fetch('https://api.runwayml.com/v1/generate', {
