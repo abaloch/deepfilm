@@ -1,6 +1,6 @@
 'use client';
 
-import Script from 'next/script';
+import { useEffect } from 'react';
 
 declare global {
     namespace JSX {
@@ -14,18 +14,23 @@ declare global {
   }
 
 export default function PricingTable() {
+  useEffect(() => {
+    // Load Stripe.js
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/pricing-table.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   return (
-    <div>
-      <Script async src="https://js.stripe.com/v3/pricing-table.js" />
-      <div
-        dangerouslySetInnerHTML={{
-          __html: `
-            <stripe-pricing-table
-              pricing-table-id="prctbl_1R9bEjPfnvEhFMZfc62Uww9n"
-              publishable-key="pk_test_51R9YmWPfnvEhFMZf9QpWWyHth2a6iGnARB1Iczw0ZVDiEgjBC0SKo2kCcwqS78GDAE94XJTHeomtNKVL2gCRxKVJ00kaIncd4s"
-            ></stripe-pricing-table>
-          `
-        }}
+    <div className="w-full max-w-[1000px] mx-auto">
+      <stripe-pricing-table
+        pricing-table-id="prctbl_1R9ZdBPfnvEhFMZfpu6G5mvY"
+        publishable-key={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''}
       />
     </div>
   );
