@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
-import { useEffect } from 'react';
 
 const plans = [
   {
@@ -58,7 +57,7 @@ export default function PricingTable() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
 
-  const handlePlanSelect = (plan: typeof plans[0]) => {
+  const handlePlanSelect = () => {
     if (isSignedIn) {
       router.push('/generate');
     } else {
@@ -97,7 +96,7 @@ export default function PricingTable() {
             <Button
               variant={plan.buttonVariant}
               className="w-full"
-              onClick={() => handlePlanSelect(plan)}
+              onClick={handlePlanSelect}
             >
               {plan.buttonText}
             </Button>

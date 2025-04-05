@@ -71,7 +71,7 @@ export default function Home() {
               making it accessible to everyone.
             </p>
             <p>
-              Whether you're a content creator, marketer, or business owner,
+              Whether you&apos;re a content creator, marketer, or business owner,
               DeepFilm empowers you to produce high-quality videos without the
               need for expensive equipment or technical expertise.
             </p>
