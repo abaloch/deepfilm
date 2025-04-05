@@ -8,18 +8,12 @@ import { SignedIn, UserButton, SignedOut, SignInButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { usePathname } from 'next/navigation'
 import AccountButton from '@/components/AccountButton'
-import type { Metadata } from 'next'
 
 const inter = Inter({ 
   subsets: ["latin"],
   display: 'swap',
   preload: true,
 })
-
-export const metadata: Metadata = {
-  title: 'DeepFilm - AI Video Generation',
-  description: 'Create stunning videos with AI',
-}
 
 export default function RootLayout({
   children,
