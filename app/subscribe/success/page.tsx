@@ -1,36 +1,49 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
-export default function SuccessPage() {
-  const router = useRouter();
+function SuccessContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const sessionId = searchParams.get('session_id');
 
-  useEffect(() => {
-    if (!sessionId) {
-      console.error('No session ID found');
-      return;
-    }
-
-    // Redirect to generate page after a short delay
-    const timer = setTimeout(() => {
-      router.push('/generate');
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [sessionId, router]);
-
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center">
-        <div className="mb-8">
-          <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
-          <h1 className="text-4xl font-light tracking-wider text-white mb-2">SUCCESS</h1>
-          <p className="text-white/60 text-sm tracking-widest">REDIRECTING</p>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center max-w-2xl"
+      >
+        <h1 className="text-4xl font-bold mb-6">Thank You!</h1>
+        <p className="text-xl mb-8">
+          Your subscription has been successfully processed. You can now start creating amazing videos with DeepFilm.
+        </p>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="bg-white text-black px-8 py-3 rounded-full text-lg font-medium"
+          onClick={() => router.push('/generate')}
+        >
+          Start Creating
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl">Loading...</p>
         </div>
       </div>
-    </div>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 } 
