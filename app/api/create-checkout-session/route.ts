@@ -2,7 +2,7 @@ import { stripe } from '@/lib/stripe';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-
+// this is the route for the checkout session
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
