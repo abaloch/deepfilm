@@ -1,13 +1,12 @@
 'use client';
 
-import PricingTable from '@/components/PricingTable';
-import { useEffect, useRef } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Inter } from 'next/font/google';
+import { useAuth } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-// more notes added just so i can commit
+import Link from 'next/link';
+import PricingTable from '@/components/PricingTable';
+import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -484,88 +483,54 @@ export default function LandingPage() {
         </motion.div>
 
         {/* About Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col items-center mx-auto" 
-          style={{ marginTop: '120px', marginBottom: '120px' }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto px-4 py-20 text-center"
         >
-          <h2 className="text-4xl font-semibold mb-16 text-center" style={{ fontSize: '40px' }}>About</h2>
-          
-          <div style={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '64px',
-            width: '100%',
-            maxWidth: '900px',
-            margin: '0 auto'
-          }}>
-            <div style={{ 
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '24px'
-              }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 8V16" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 12H16" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <p style={{ 
-                fontSize: '24px',
-                lineHeight: '1.4',
-                color: 'rgba(255, 255, 255, 0.9)',
-                marginBottom: '32px',
-                maxWidth: '800px'
-              }}>
-                DEEPFILM is a new kind of filmmaking platform, built for the next generation of storytellers. We're reimagining how films are made, one frame at a time.
-              </p>
-              <p style={{ 
-                fontSize: '20px',
-                lineHeight: '1.6',
-                color: 'rgba(255, 255, 255, 0.8)',
-                maxWidth: '800px',
-                marginBottom: '32px'
-              }}>
-                Founded in 2025 in Los Angeles, we're on a mission to democratize filmmaking through artificial intelligence. Our platform combines cutting-edge technology with artistic vision, enabling creators to bring their stories to life in ways never before possible.
-              </p>
-              <p style={{ 
-                fontSize: '20px',
-                lineHeight: '1.6',
-                color: 'rgba(255, 255, 255, 0.8)',
-                maxWidth: '800px'
-              }}>
-                We believe in the power of storytelling and the importance of preserving the human element in filmmaking. Our tools are designed to enhance creativity, not replace it.
-              </p>
-            </div>
-
-            <div style={{ 
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: '32px'
-            }}>
-              <span style={{ 
-                fontSize: '16px',
-                color: 'rgba(255, 255, 255, 0.7)',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}>Founded by Asad Baloch</span>
-            </div>
+          <h1 className="text-4xl font-light tracking-wider mb-8">About</h1>
+          <div className="space-y-8">
+            <p style={{ 
+              fontSize: '24px', 
+              lineHeight: '1.6', 
+              color: 'white',
+              letterSpacing: '0.5px',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }} className="font-light">
+              DEEPFILM is an AI-powered storytelling tool that transforms written prompts into cinematic video.
+            </p>
+            <p style={{ 
+              fontSize: '24px', 
+              lineHeight: '1.6', 
+              color: 'white',
+              letterSpacing: '0.5px',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }} className="font-light">
+              Built for indie filmmakers and creative visionaries, it blends intuitive technology with a deep love for film, aesthetics, and emotional storytelling.
+            </p>
+            <p style={{ 
+              fontSize: '24px', 
+              lineHeight: '1.6', 
+              color: 'white',
+              letterSpacing: '0.5px',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }} className="font-light">
+              DEEPFILM exists to make visual storytelling more intuitive, expressive, and accessible — no cameras, no crew, just imagination.
+            </p>
+            <p style={{ 
+              fontSize: '24px', 
+              lineHeight: '1.6', 
+              color: 'rgba(255, 255, 255, 0.6)',
+              letterSpacing: '0.5px',
+              maxWidth: '800px',
+              margin: '0 auto'
+            }} className="font-light">
+              Founded by Asad Baloch
+            </p>
           </div>
-          
         </motion.div>
 
         <motion.div 
@@ -575,7 +540,7 @@ export default function LandingPage() {
           transition={{ duration: 0.8 }}
           className="mt-20"
         >
-          <PricingTable />
+      
         </motion.div>
 
         {/* Info Section */}

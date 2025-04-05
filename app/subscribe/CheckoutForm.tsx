@@ -39,8 +39,10 @@ export default function CheckoutForm() {
       if (confirmError) {
         setError(confirmError.message || 'An error occurred');
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error creating checkout session:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

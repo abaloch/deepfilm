@@ -87,9 +87,10 @@ export async function initializeUserCredits(
       console.log('New user created successfully:', newUser);
       return newUser;
     }
-  } catch (error) {
-    console.error('Error in initializeUserCredits:', error);
-    throw error;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error initializing user credits:', errorMessage);
+    throw new Error(errorMessage);
   }
 }
 
@@ -164,9 +165,10 @@ export async function useCredits(clerkId: string, amount: number = 1) {
 
     console.log('Credits updated successfully:', updatedUser);
     return updatedUser;
-  } catch (error: any) {
-    console.error('Error in useCredits:', error);
-    throw error;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    console.error('Error in useCredits:', errorMessage);
+    throw new Error(errorMessage);
   }
 }
 

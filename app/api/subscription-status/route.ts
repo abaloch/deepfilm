@@ -74,11 +74,9 @@ export async function GET() {
       subscriptionStatus: user.subscription_status || 'inactive',
       credits: user.credits || 0
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     console.error('Error checking subscription status:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 

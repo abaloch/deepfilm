@@ -28,8 +28,10 @@ export default function BillingPage() {
         } else {
           setInvoices(data.invoices);
         }
-      } catch (err) {
-        setError('Failed to fetch invoices');
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        console.error('Error fetching subscription status:', errorMessage);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

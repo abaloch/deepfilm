@@ -1,28 +1,141 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
+import { motion } from 'framer-motion';
 
-export default function Generate() {
-  const router = useRouter();
-  const { userId } = useAuth();
+const VIDEO_URLS = [
+  '/videos/1.mp4',
+  '/videos/2.mp4',
+  '/videos/3.mp4',
+  '/videos/4.mp4',
+  '/videos/5.mp4',
+  '/videos/6.mp4',
+  '/videos/7.mp4',
+  '/videos/8.mp4',
+  '/videos/9.mp4',
+  '/videos/10.mp4',
+  '/videos/11.mp4',
+  '/videos/12.mp4',
+  '/videos/13.mp4',
+  '/videos/14.mp4',
+  '/videos/15.mp4',
+  '/videos/16.mp4',
+  '/videos/17.mp4',
+  '/videos/18.mp4',
+  '/videos/19.mp4',
+  '/videos/20.mp4',
+  '/videos/21.mp4',
+  '/videos/22.mp4',
+  '/videos/23.mp4',
+  '/videos/24.mp4',
+  '/videos/25.mp4',
+  '/videos/26.mp4',
+  '/videos/27.mp4',
+  '/videos/28.mp4',
+  '/videos/29.mp4',
+  '/videos/30.mp4',
+  '/videos/31.mp4',
+  '/videos/32.mp4',
+  '/videos/33.mp4',
+  '/videos/34.mp4',
+  '/videos/35.mp4',
+  '/videos/36.mp4',
+  '/videos/37.mp4',
+  '/videos/38.mp4',
+  '/videos/39.mp4',
+  '/videos/40.mp4',
+  '/videos/41.mp4',
+  '/videos/42.mp4',
+  '/videos/43.mp4',
+  '/videos/44.mp4',
+  '/videos/45.mp4',
+  '/videos/46.mp4',
+  '/videos/47.mp4',
+  '/videos/48.mp4',
+  '/videos/49.mp4',
+  '/videos/50.mp4',
+  '/videos/51.mp4',
+  '/videos/52.mp4',
+  '/videos/53.mp4',
+  '/videos/54.mp4',
+  '/videos/55.mp4',
+  '/videos/56.mp4',
+  '/videos/57.mp4',
+  '/videos/58.mp4',
+  '/videos/59.mp4',
+  '/videos/60.mp4',
+  '/videos/61.mp4',
+  '/videos/62.mp4',
+  '/videos/63.mp4',
+  '/videos/64.mp4',
+  '/videos/65.mp4',
+  '/videos/66.mp4',
+  '/videos/67.mp4',
+  '/videos/68.mp4',
+  '/videos/69.mp4',
+  '/videos/70.mp4',
+  '/videos/71.mp4',
+  '/videos/72.mp4',
+  '/videos/73.mp4',
+  '/videos/74.mp4',
+  '/videos/75.mp4',
+  '/videos/76.mp4',
+  '/videos/77.mp4',
+  '/videos/78.mp4',
+  '/videos/79.mp4',
+  '/videos/80.mp4',
+  '/videos/81.mp4',
+  '/videos/82.mp4',
+  '/videos/83.mp4',
+  '/videos/84.mp4',
+  '/videos/85.mp4',
+  '/videos/86.mp4',
+  '/videos/87.mp4',
+  '/videos/88.mp4',
+  '/videos/89.mp4',
+  '/videos/90.mp4',
+  '/videos/91.mp4',
+  '/videos/92.mp4',
+  '/videos/93.mp4',
+  '/videos/94.mp4',
+  '/videos/95.mp4',
+  '/videos/96.mp4',
+  '/videos/97.mp4',
+  '/videos/98.mp4',
+  '/videos/99.mp4',
+  '/videos/100.mp4'
+];
+
+export default function GeneratePage() {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentVideo, setCurrentVideo] = useState('/beautiful-woman-closeup.mp4');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [credits, setCredits] = useState<number | null>(null);
+  const [currentVideo, setCurrentVideo] = useState(VIDEO_URLS[0]);
+  const [videoIndex, setVideoIndex] = useState(0);
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVideoIndex((prevIndex) => (prevIndex + 1) % VIDEO_URLS.length);
+      setCurrentVideo(VIDEO_URLS[videoIndex]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [videoIndex]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSignedIn) {
+      setError('Please sign in to generate videos');
+      return;
+    }
+
     setLoading(true);
     setError(null);
-    setIsGenerating(true);
 
     try {
-      // First call your API to check credits and generate video
-      const res = await fetch('/api/generate', {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,211 +143,94 @@ export default function Generate() {
         body: JSON.stringify({ prompt }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
+      if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.error || 'Failed to generate video');
       }
 
-      // Update credits immediately
-      setCredits(data.credits);
-
-      // Dispatch event to update credits in UI
-      const event = new CustomEvent('creditsUpdated', {
-        detail: {
-          credits: data.credits,
-          subscriptionStatus: data.subscriptionStatus
-        }
-      });
-      console.log('Dispatching creditsUpdated event:', event.detail);
-      window.dispatchEvent(event);
-
-      // If API call succeeds, proceed with video generation
-      const stabilityAiKey = process.env.NEXT_PUBLIC_STABILITY_AI_KEY;
-      const runwaymlKey = process.env.NEXT_PUBLIC_RUNWAYML_KEY;
-      
-      const videoRes = await fetch('https://deepfilm-615767718304.us-west2.run.app', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt,
-          stability_ai_key: stabilityAiKey,
-          runwayml_key: runwaymlKey
-        }),
-      });
-
-      if (!videoRes.ok) {
-        const errorText = await videoRes.text();
-        throw new Error(`Failed to generate video: ${errorText}`);
-      }
-
-      const videoData = await videoRes.json();
-      
-      if (videoData.video_url) {
-        // Update the video source instead of navigating
-        setCurrentVideo(videoData.video_url);
-        setPrompt(''); // Clear the prompt
-      } else {
-        throw new Error('No video URL received');
-      }
-    } catch (error: any) {
-      console.error('Error:', error);
-      setError(error.message);
+      const data = await response.json();
+      setCurrentVideo(data.videoUrl);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
     } finally {
       setLoading(false);
-      setIsGenerating(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
-      {/* Main container */}
-      <div className="max-w-[1200px] mx-auto" style={{ marginTop: '80px' }}>
-        {/* Error Notification */}
-        {error && (
-          <div style={{ 
-            width: '800px',
-            maxWidth: '90%',
-            margin: '0 auto 32px auto'
-          }}>
-            <div style={{ 
-              background: 'white',
-              border: '1px solid rgba(0, 0, 0, 0.1)',
-              borderRadius: '12px',
-              color: 'black',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px 16px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-            }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 6.66667V10M10 13.3333H10.0083M18.3333 10C18.3333 14.6024 14.6024 18.3333 10 18.3333C5.39763 18.3333 1.66667 14.6024 1.66667 10C1.66667 5.39763 5.39763 1.66667 10 1.66667C14.6024 1.66667 18.3333 5.39763 18.3333 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>You don't have enough credits to generate a video. Please buy more credits to continue.</span>
-            </div>
-          </div>
-        )}
+      <div className="max-w-4xl mx-auto">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-4xl font-light tracking-wider mb-8"
+        >
+          GENERATE
+        </motion.h1>
 
-        {/* Video Section */}
-        <div className="max-w-[800px] mx-auto my-20">
-          <div className="relative w-full h-[450px]">
-            {!isGenerating ? (
-              <video 
-                key={currentVideo}
-                className="absolute inset-0 w-full h-full object-cover rounded-lg"
-                src={currentVideo}
-                autoPlay
-                loop
-                muted
-                playsInline
-                controls
-                preload="auto"
-                style={{ 
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                  border: '1px solid rgba(128, 128, 128, 0.3)',
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-              ></video>
-            ) : (
-              <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black/80 rounded-lg"
-                   style={{ 
-                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                     border: '1px solid rgba(128, 128, 128, 0.3)'
-                   }}>
-                <div className="flex flex-col items-center justify-center gap-4">
-                  <div className="spinner"></div>
-                  <span className="text-white text-lg font-medium">Generating your video...</span>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+          >
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="prompt" className="block text-sm font-light mb-2">
+                  PROMPT
+                </label>
+                <textarea
+                  id="prompt"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg p-4 text-white focus:outline-none focus:border-white/20"
+                  rows={4}
+                  placeholder="Describe your video..."
+                  required
+                />
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Input Section */}
-        <div className="max-w-[800px] mx-auto" style={{ marginTop: '80px' }}>
-          <form onSubmit={handleSubmit} id="videoForm" className="w-full">
-            <div className="flex w-full items-center relative">
-              <textarea
-                id="prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="w-full text-white focus:outline-none rounded-full pr-20 text-lg"
-                placeholder="Write your imagination..."
-                required
-                style={{ 
-                  resize: 'none',
-                  lineHeight: '28px',
-                  padding: '10px 24px',
-                  color: 'white',
-                  fontSize: '18px',
-                  background: 'rgba(192, 192, 192, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              ></textarea>
-              <div className="ml-[-60px]">
-                <button 
-                  type="submit" 
-                  className="rounded-full flex items-center justify-center text-sm text-white"
-                  disabled={loading}
-                  style={{ 
-                    width: '48px',
-                    height: '48px',
-                    background: 'rgba(0, 0, 0, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}
-                >
-                  {loading ? (
-                    <div className="spinner-small"></div>
-                  ) : (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 20V4M12 4L6 10M12 4L18 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-white text-black py-3 px-6 rounded-lg font-light tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'GENERATING...' : 'GENERATE'}
+              </button>
+
+              {error && (
+                <p className="text-red-500 text-sm">{error}</p>
+              )}
+            </form>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="relative aspect-video bg-white/5 rounded-lg overflow-hidden"
+          >
+            <video 
+              key={currentVideo}
+              className="absolute inset-0 w-full h-full object-cover rounded-lg"
+              src={currentVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls
+              preload="auto"
+              style={{ 
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(128, 128, 128, 0.3)',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            ></video>
+          </motion.div>
         </div>
       </div>
-
-      <style jsx>{`
-        .spinner {
-          border: 4px solid rgba(255, 255, 255, 0.3);
-          border-top: 4px solid white;
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          animation: spin 1s linear infinite;
-        }
-
-        .spinner-small {
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-top: 2px solid white;
-          border-radius: 50%;
-          width: 20px;
-          height: 20px;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        textarea::placeholder {
-          color: rgba(255, 255, 255, 0.5);
-          line-height: 28px;
-          position: relative;
-          top: 1px;
-          font-size: 18px;
-        }
-      `}</style>
     </div>
   );
 }
