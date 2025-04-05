@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { initializeUserCredits, updateSubscriptionStatus } from '@/lib/credits';
+import { initializeUserCredits, updateSubscriptionStatus, SubscriptionStatus } from '@/lib/credits';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-03-31.basil'
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
           );
         }
 
-        await updateSubscriptionStatus(userId, subscription.status as any);
+        await updateSubscriptionStatus(userId, subscription.status as SubscriptionStatus);
         break;
       }
     }
