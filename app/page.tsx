@@ -9,7 +9,6 @@ import PricingTable from '@/components/PricingTable';
 import { Inter } from 'next/font/google';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -25,10 +24,18 @@ declare global {
   }
 }
 
-export default async function Home() {
-  const { userId } = await auth();
-  if (userId) {
-    redirect('/generate');
+export default function Home() {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push('/generate');
+    }
+  }, [isSignedIn, router]);
+
+  if (isSignedIn) {
+    return null;
   }
 
   return (
