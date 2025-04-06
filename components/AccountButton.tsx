@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 export default function AccountButton() {
   const { userId } = useAuth();
   const router = useRouter();
-  const [credits, setCredits] = useState<number | null>(null);
+  const [credits, setCredits] = useState<number>(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string>('inactive');
   const [loading, setLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -24,10 +24,19 @@ export default function AccountButton() {
     if (!userId) return;
     
     try {
+      console.log('Fetching user data for userId:', userId);
       const response = await fetch('/api/subscription-status');
-      if (!response.ok) throw new Error('Failed to fetch subscription status');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch subscription status: ${response.status}`);
+      }
       
       const data = await response.json();
+      console.log('User data response:', data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setCredits(data.credits || 0);
       setSubscriptionStatus(data.subscriptionStatus || 'inactive');
     } catch (error) {
@@ -39,6 +48,23 @@ export default function AccountButton() {
 
   useEffect(() => {
     fetchUserData();
+
+    // Listen for credits updates
+    const handleCreditsUpdate = (event: CustomEvent) => {
+      console.log('Credits update event received:', event.detail);
+      setCredits(event.detail.credits);
+      setSubscriptionStatus(event.detail.subscriptionStatus);
+    };
+
+    window.addEventListener('creditsUpdated', handleCreditsUpdate as EventListener);
+
+    // Set up polling for credits updates
+    const pollInterval = setInterval(fetchUserData, 30000); // Poll every 30 seconds
+
+    return () => {
+      window.removeEventListener('creditsUpdated', handleCreditsUpdate as EventListener);
+      clearInterval(pollInterval);
+    };
   }, [userId]);
 
   const handleBillingClick = async () => {

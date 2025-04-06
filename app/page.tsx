@@ -37,14 +37,19 @@ export default function LandingPage() {
     if (userId) {
       const checkSubscription = async () => {
         try {
+          console.log('Checking subscription status for user:', userId);
           const response = await fetch('/api/subscription-status');
           if (!response.ok) {
-            throw new Error('Failed to fetch subscription status');
+            throw new Error(`Failed to fetch subscription status: ${response.status}`);
           }
           const data = await response.json();
+          console.log('Subscription status response:', data);
           
           if (data.subscriptionStatus === 'active' || data.subscriptionStatus === 'trialing') {
+            console.log('User has active subscription, redirecting to /generate');
             router.push('/generate');
+          } else {
+            console.log('User does not have active subscription');
           }
         } catch (error) {
           console.error('Error checking subscription status:', error);
