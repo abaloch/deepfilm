@@ -1,40 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
-export default function SuccessPage() {
+function SuccessContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { userId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { isSignedIn, userId, isLoaded } = useAuth();
 
   useEffect(() => {
-    // Wait for Clerk to finish loading
-    if (!isLoaded) {
-      return;
-    }
-
     const sessionId = searchParams.get('session_id');
-    
     if (!sessionId) {
       setError('No session ID found');
       setLoading(false);
       return;
     }
 
-    if (!isSignedIn || !userId) {
-      // If not signed in, redirect to sign in page
-      router.push('/sign-in?redirect_url=/subscribe/success?session_id=' + sessionId);
+    if (!userId) {
+      setError('User not authenticated');
+      setLoading(false);
       return;
     }
 
     const updateSubscription = async () => {
       try {
-        console.log('Updating subscription for session:', sessionId);
-        
+        console.log('Attempting to update subscription...');
         const response = await fetch('/api/update-subscription', {
           method: 'POST',
           headers: {
@@ -43,51 +36,66 @@ export default function SuccessPage() {
           body: JSON.stringify({ sessionId }),
         });
 
-        const data = await response.json();
-        
         if (!response.ok) {
-          console.error('Update subscription failed:', data);
-          throw new Error(data.error || 'Failed to update subscription');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update subscription');
         }
 
-        console.log('Subscription updated successfully:', data);
-
-        // Use router.push instead of window.location for a smoother transition
-        router.push('/generate');
-      } catch (err: any) {
+        console.log('Subscription updated successfully');
+        window.location.href = '/generate';
+      } catch (err) {
         console.error('Error updating subscription:', err);
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
     };
 
     updateSubscription();
-  }, [searchParams, router, isSignedIn, userId, isLoaded]);
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
+  }, [searchParams, userId]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-xl">Processing your subscription...</div>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner"></div>
+          <p className="mt-4">Processing your subscription...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-red-500 text-xl">{error}</div>
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Error</h1>
+          <p className="text-red-500">{error}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-4 px-4 py-2 bg-white text-black rounded hover:bg-gray-200"
+          >
+            Return Home
+          </button>
+        </div>
       </div>
     );
   }
 
   return null;
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner"></div>
+          <p className="mt-4">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SuccessContent />
+    </Suspense>
+  );
 } 
