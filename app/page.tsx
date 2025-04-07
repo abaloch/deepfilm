@@ -1,6 +1,6 @@
 'use client';
 
-import PricingTable from '@/components/PricingTable';
+import PricingTable from '../components/PricingTable';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';

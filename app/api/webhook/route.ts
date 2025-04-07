@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
 
 // Replace these with your actual Stripe price IDs
-const priceToPlan: Record<string, string> = {
+const priceToPlan: Record<string, 'basic'> = {
   'price_1RB7qfB3GdKAaOkrjpPCnIrl': 'basic'
 };
 
