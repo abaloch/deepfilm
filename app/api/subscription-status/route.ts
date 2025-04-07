@@ -1,10 +1,12 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { stripe } from '@/lib/stripe';
 
 export async function GET() {
   try {
     const { userId } = await auth();
+    const user = await currentUser();
     
     if (!userId) {
       console.log('No userId found in auth');
@@ -16,23 +18,52 @@ export async function GET() {
 
     console.log('Fetching subscription status for userId:', userId);
 
-    // Get user data from Supabase
-    const { data: user, error } = await supabase
+    // Check if Supabase is properly configured
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase configuration missing:', {
+        hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+      });
+      return NextResponse.json({
+        subscriptionStatus: 'inactive',
+        credits: 0
+      });
+    }
+
+    // Get user's email from Clerk
+    const email = user?.emailAddresses[0]?.emailAddress;
+    
+    if (!email) {
+      console.error('No email found for user');
+      return NextResponse.json({
+        subscriptionStatus: 'inactive',
+        credits: 0
+      });
+    }
+
+    // First try to find user by clerk_id
+    const { data: existingUser, error: clerkIdError } = await supabase
       .from('users')
-      .select('credits, subscription_status')
+      .select('credits, subscription_status, stripe_customer_id, stripe_subscription_id')
       .eq('clerk_id', userId)
       .single();
 
-    if (error) {
-      console.log('Supabase error:', error);
-      
-      if (error.code === 'PGRST116') { // Not found error
-        console.log('User not found, creating new user');
-        // Create a new user
+    if (clerkIdError && clerkIdError.code === 'PGRST116') {
+      // If not found by clerk_id, try to find by email
+      const { data: emailUser, error: emailError } = await supabase
+        .from('users')
+        .select('credits, subscription_status, stripe_customer_id, stripe_subscription_id')
+        .eq('email', email)
+        .single();
+
+      if (emailError && emailError.code === 'PGRST116') {
+        // No user found with either clerk_id or email, create new user
+        console.log('Creating new user');
         const { data: newUser, error: insertError } = await supabase
           .from('users')
           .insert({
             clerk_id: userId,
+            email: email,
             credits: 0,
             subscription_status: 'inactive'
           })
@@ -41,10 +72,10 @@ export async function GET() {
 
         if (insertError) {
           console.error('Error creating new user:', insertError);
-          return NextResponse.json(
-            { error: 'Failed to create user' },
-            { status: 500 }
-          );
+          return NextResponse.json({
+            subscriptionStatus: 'inactive',
+            credits: 0
+          });
         }
 
         console.log('Created new user:', newUser);
@@ -52,32 +83,114 @@ export async function GET() {
           subscriptionStatus: 'inactive',
           credits: 0
         });
-      }
+      } else if (emailError) {
+        console.error('Error finding user by email:', emailError);
+        return NextResponse.json({
+          subscriptionStatus: 'inactive',
+          credits: 0
+        });
+      } else if (emailUser) {
+        // Found user by email, update their clerk_id
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ clerk_id: userId })
+          .eq('email', email);
 
-      return NextResponse.json(
-        { error: 'Failed to fetch user data' },
-        { status: 500 }
-      );
+        if (updateError) {
+          console.error('Error updating user clerk_id:', updateError);
+        }
+
+        // Verify subscription status with Stripe
+        if (emailUser.stripe_customer_id) {
+          try {
+            const subscriptions = await stripe.subscriptions.list({
+              customer: emailUser.stripe_customer_id,
+              status: 'active',
+              limit: 1
+            });
+
+            if (subscriptions.data.length === 0) {
+              // If no active subscription in Stripe, update our database
+              await supabase
+                .from('users')
+                .update({ subscription_status: 'inactive' })
+                .eq('email', email);
+              
+              return NextResponse.json({
+                subscriptionStatus: 'inactive',
+                credits: emailUser.credits || 0,
+                stripeCustomerId: emailUser.stripe_customer_id,
+                stripeSubscriptionId: emailUser.stripe_subscription_id
+              });
+            }
+          } catch (error) {
+            console.error('Error verifying subscription with Stripe:', error);
+          }
+        }
+
+        return NextResponse.json({
+          subscriptionStatus: emailUser.subscription_status || 'inactive',
+          credits: emailUser.credits || 0,
+          stripeCustomerId: emailUser.stripe_customer_id,
+          stripeSubscriptionId: emailUser.stripe_subscription_id
+        });
+      }
+    } else if (clerkIdError) {
+      console.error('Error finding user by clerk_id:', clerkIdError);
+      return NextResponse.json({
+        subscriptionStatus: 'inactive',
+        credits: 0
+      });
     }
 
-    if (!user) {
+    if (!existingUser) {
       console.log('No user data found');
       return NextResponse.json({
         subscriptionStatus: 'inactive',
         credits: 0
       });
     }
+
+    // Verify subscription status with Stripe
+    if (existingUser.stripe_customer_id) {
+      try {
+        const subscriptions = await stripe.subscriptions.list({
+          customer: existingUser.stripe_customer_id,
+          status: 'active',
+          limit: 1
+        });
+
+        if (subscriptions.data.length === 0) {
+          // If no active subscription in Stripe, update our database
+          await supabase
+            .from('users')
+            .update({ subscription_status: 'inactive' })
+            .eq('clerk_id', userId);
+          
+          return NextResponse.json({
+            subscriptionStatus: 'inactive',
+            credits: existingUser.credits || 0,
+            stripeCustomerId: existingUser.stripe_customer_id,
+            stripeSubscriptionId: existingUser.stripe_subscription_id
+          });
+        }
+      } catch (error) {
+        console.error('Error verifying subscription with Stripe:', error);
+      }
+    }
     
-    console.log('Found user data:', user);
+    console.log('Found user data:', existingUser);
     return NextResponse.json({
-      subscriptionStatus: user.subscription_status || 'inactive',
-      credits: user.credits || 0
+      subscriptionStatus: existingUser.subscription_status || 'inactive',
+      credits: existingUser.credits || 0,
+      stripeCustomerId: existingUser.stripe_customer_id,
+      stripeSubscriptionId: existingUser.stripe_subscription_id
     });
   } catch (error: any) {
     console.error('Error in subscription status check:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      subscriptionStatus: 'inactive',
+      credits: 0
+    });
   }
 } 

@@ -24,13 +24,20 @@ export async function POST(req: Request) {
 
     console.log('Found customers:', customers.data.length);
 
+    let customer;
     if (customers.data.length === 0) {
-      console.log('No customer found');
-      return new NextResponse('Customer not found', { status: 404 });
+      console.log('No customer found, creating new customer');
+      // Create a new customer if one doesn't exist
+      customer = await stripe.customers.create({
+        metadata: {
+          clerkUserId: userId
+        }
+      });
+      console.log('Created new customer:', customer.id);
+    } else {
+      customer = customers.data[0];
+      console.log('Found existing customer:', customer.id);
     }
-
-    const customer = customers.data[0];
-    console.log('Found customer:', customer.id);
 
     // Get the domain from headers
     const headersList = await headers();

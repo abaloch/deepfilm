@@ -39,6 +39,14 @@ export default function AccountButton() {
 
       setCredits(data.credits || 0);
       setSubscriptionStatus(data.subscriptionStatus || 'inactive');
+
+      // Log Stripe information for debugging
+      if (data.stripeCustomerId) {
+        console.log('Stripe Customer ID:', data.stripeCustomerId);
+        console.log('Stripe Subscription ID:', data.stripeSubscriptionId);
+      } else {
+        console.log('No Stripe Customer ID found');
+      }
     } catch (error) {
       console.error('Error fetching subscription status:', error);
     } finally {
@@ -81,6 +89,27 @@ export default function AccountButton() {
       console.error('Error creating portal session:', error);
     }
   };
+
+  if (subscriptionStatus === 'inactive') {
+    return (
+      <Button
+        onClick={() => router.push('/subscribe')}
+        className="flex items-center gap-2 border-0"
+        style={{ 
+          backgroundColor: isHovered ? 'rgba(255, 255, 255, 0.85)' : 'white',
+          color: 'black',
+          borderRadius: '9999px',
+          padding: '8px',
+          fontSize: '16px',
+          transition: 'background-color 0.2s ease'
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        Subscribe
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
