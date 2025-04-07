@@ -112,7 +112,7 @@ export async function updateSubscriptionStatus(
     updateData.subscription_id = subscriptionId;
   }
 
-  if (status === 'canceled' || status === 'inactive') {
+  if (status === 'canceled' || status === 'incomplete' || status === 'incomplete_expired' || status === 'unpaid') {
     updateData.subscription_end_date = new Date().toISOString();
   }
 
