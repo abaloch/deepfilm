@@ -1,51 +1,93 @@
 'use client';
 
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
-function SuccessContent() {
+export default function SuccessPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  const { isSignedIn, userId, isLoaded } = useAuth();
 
   useEffect(() => {
-    if (!sessionId) {
-      console.error('No session ID found');
+    // Wait for Clerk to finish loading
+    if (!isLoaded) {
       return;
     }
 
-    // Redirect to generate page after a short delay
-    const timer = setTimeout(() => {
-      router.push('/generate');
-    }, 2000);
+    const sessionId = searchParams.get('session_id');
+    
+    if (!sessionId) {
+      setError('No session ID found');
+      setLoading(false);
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, [sessionId, router]);
+    if (!isSignedIn || !userId) {
+      // If not signed in, redirect to sign in page
+      router.push('/sign-in?redirect_url=/subscribe/success?session_id=' + sessionId);
+      return;
+    }
 
-  return (
-    <div className="text-center">
-      <div className="mb-8">
-        <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
-        <h1 className="text-4xl font-light tracking-wider text-white mb-2">SUCCESS</h1>
-        <p className="text-white/60 text-sm tracking-widest">REDIRECTING</p>
+    const updateSubscription = async () => {
+      try {
+        console.log('Updating subscription for session:', sessionId);
+        
+        const response = await fetch('/api/update-subscription', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessionId }),
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          console.error('Update subscription failed:', data);
+          throw new Error(data.error || 'Failed to update subscription');
+        }
+
+        console.log('Subscription updated successfully:', data);
+
+        // Use router.push instead of window.location for a smoother transition
+        router.push('/generate');
+      } catch (err: any) {
+        console.error('Error updating subscription:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    updateSubscription();
+  }, [searchParams, router, isSignedIn, userId, isLoaded]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-xl">Loading...</div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-export default function SuccessPage() {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <Suspense fallback={
-        <div className="text-center">
-          <div className="mb-8">
-            <div className="w-16 h-16 border-2 border-white mx-auto mb-4"></div>
-            <h1 className="text-4xl font-light tracking-wider text-white mb-2">LOADING</h1>
-          </div>
-        </div>
-      }>
-        <SuccessContent />
-      </Suspense>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-xl">Processing your subscription...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-red-500 text-xl">{error}</div>
+      </div>
+    );
+  }
+
+  return null;
 } 

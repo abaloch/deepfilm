@@ -2,27 +2,29 @@ import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-// Define public routes
-const publicRoutes = [
-  '/',  // Landing page is public
-  '/sign-in(.*)', 
-  '/sign-up(.*)', 
-  '/api/webhook',  // Add webhook route as public
-  '/beautiful-woman-closeup.mp4'  // Add video file as public
+// List of public paths that don't require authentication
+const publicPaths = [
+  "/",
+  "/sign-in",
+  "/sign-up",
+  "/api/webhooks/stripe",
+  "/api/create-checkout-session",
+  "/api/session-status",
+  "/api/verify-session",
+  "/api/update-subscription",
+  "/subscribe/success",
+  "/beautiful-woman-closeup.mp4"
 ];
 
-// Helper function to check if a path is public
-const isPublicPath = (path: string) => {
-  return publicRoutes.some(route => {
-    if (route.endsWith('(.*)')) {
-      const baseRoute = route.slice(0, -4);
-      return path.startsWith(baseRoute);
-    }
-    return path === route;
-  });
-};
+function isPublicPath(path: string) {
+  return publicPaths.some(publicPath => 
+    path === publicPath || path.startsWith(`${publicPath}/`)
+  );
+}
 
 export default authMiddleware({
+  publicRoutes: publicPaths,
+  ignoredRoutes: ["/api/webhooks/stripe"],
   async afterAuth(auth, req) {
     const { userId } = auth;
     const path = req.nextUrl.pathname;
@@ -53,6 +55,11 @@ export default authMiddleware({
       if (user?.subscription_status === 'active' && path === '/') {
         return NextResponse.redirect(new URL('/generate', req.url));
       }
+
+      // If user has an active subscription and is trying to access the subscribe page
+      if (user?.subscription_status === 'active' && path === '/subscribe') {
+        return NextResponse.redirect(new URL('/generate', req.url));
+      }
     }
 
     return NextResponse.next();
@@ -60,16 +67,5 @@ export default authMiddleware({
 });
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp4)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-    // Include Clerk domains
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-    // Additional patterns for other routes
-    '/((?!.+\\.[\\w]+$|_next).*)',
-    '/'
-  ],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

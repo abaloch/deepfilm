@@ -20,7 +20,7 @@ export default function SubscribePage() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        lookup_key: 'price_1RB7qfB3GdKAaOkrjpPCnIrl'
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID
       }),
     })
       .then((res) => {

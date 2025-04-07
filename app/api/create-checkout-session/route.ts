@@ -12,8 +12,9 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    const priceId = body.priceId || body.lookup_key;
 
-    if (!body.lookup_key) {
+    if (!priceId) {
       return new NextResponse('Price ID is required', { status: 400 });
     }
 
@@ -37,14 +38,16 @@ export async function POST(req: Request) {
           clerkUserId: userId
         }
       });
+      console.log('Created new customer:', customer.id);
     } else {
       customer = customers.data[0];
+      console.log('Found existing customer:', customer.id);
     }
 
     console.log('Creating checkout session for:', {
       userId,
       customerId: customer.id,
-      priceId: body.lookup_key,
+      priceId,
       domain
     });
 
@@ -54,14 +57,15 @@ export async function POST(req: Request) {
       ui_mode: 'embedded',
       line_items: [
         {
-          price: body.lookup_key,
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: 'subscription',
       return_url: `${domain}/subscribe/success?session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
-        clerkUserId: userId
+        clerkUserId: userId,
+        priceId: priceId
       }
     });
 

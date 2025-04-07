@@ -2,12 +2,20 @@ import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { initializeUserCredits, CREDITS_PER_MONTH, updateSubscriptionStatus, SubscriptionStatus } from '@/lib/credits';
-import Stripe from 'stripe';
+import { Stripe } from 'stripe';
 import { supabase } from '@/lib/supabase';
 
-// Replace these with your actual Stripe price IDs
-const priceToPlan: Record<string, 'basic'> = {
-  'price_1RB7qfB3GdKAaOkrjpPCnIrl': 'basic'
+// Configure route handler options
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
+const INITIAL_CREDITS = 6;
+
+type Plan = 'basic';
+
+// Price ID to plan mapping
+const PRICE_TO_PLAN: Record<string, Plan> = {
+  [process.env.STRIPE_PRICE_ID || '']: 'basic'
 };
 
 // Map Stripe subscription status to our application status
@@ -42,7 +50,7 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
@@ -106,7 +114,7 @@ export async function POST(req: Request) {
         const priceId = subscription.items.data[0].price.id;
         
         // Get the plan from the price ID
-        const plan = priceToPlan[priceId] || 'basic';
+        const plan = PRICE_TO_PLAN[priceId] || 'basic';
 
         console.log('Initializing credits for user:', {
           clerkUserId,
@@ -217,7 +225,7 @@ export async function POST(req: Request) {
 
         // Get the plan from the price ID
         const priceId = subscription.items.data[0].price.id;
-        const plan = priceToPlan[priceId] || 'basic';
+        const plan = PRICE_TO_PLAN[priceId] || 'basic';
 
         // Add monthly credits when payment succeeds
         const user = await initializeUserCredits(
@@ -242,5 +250,3 @@ export async function POST(req: Request) {
 }
 
 // This is required to handle Stripe webhook events
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';

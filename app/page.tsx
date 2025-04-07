@@ -60,6 +60,10 @@ export default function LandingPage() {
       };
 
       checkSubscription();
+      
+      // Set up periodic check every 5 minutes
+      const interval = setInterval(checkSubscription, 5 * 60 * 1000);
+      return () => clearInterval(interval);
     }
   }, [userId, router]);
 

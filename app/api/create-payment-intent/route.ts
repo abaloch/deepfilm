@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+import { stripe } from '@/lib/stripe';
+import { PRICE_IDS } from '@/lib/stripe';
 
 export async function POST() {
   try {
-    // Get the price from your Stripe pricing table
-    const price = await stripe.prices.retrieve('price_1RB7qfB3GdKAaOkrjpPCnIrl');
+    if (!process.env.STRIPE_PRICE_ID) {
+      throw new Error('STRIPE_PRICE_ID is not set');
+    }
+
+    const price = await stripe.prices.retrieve(process.env.STRIPE_PRICE_ID);
     
     if (!price.unit_amount) {
       throw new Error('Price unit amount is missing');
@@ -16,21 +16,20 @@ export async function POST() {
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price.unit_amount,
-      currency: price.currency,
+      currency: 'usd',
       automatic_payment_methods: {
         enabled: true,
       },
       metadata: {
-        product: 'premium_subscription',
         price_id: price.id
-      },
+      }
     });
 
     return NextResponse.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     console.error('Error creating payment intent:', error);
     return NextResponse.json(
-      { error: 'Failed to create payment intent' },
+      { error: 'Error creating payment intent' },
       { status: 500 }
     );
   }
