@@ -6,8 +6,8 @@ import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
 
 // Replace these with your actual Stripe price IDs
-const PRICE_TO_PLAN: { [key: string]: keyof typeof CREDITS_PER_MONTH } = {
-  'price_1R9ZdBPfnvEhFMZfpu6G5mvY': 'basic'
+const priceToPlan: Record<string, string> = {
+  'price_1RB7qfB3GdKAaOkrjpPCnIrl': 'basic'
 };
 
 export async function POST(req: Request) {
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         const priceId = subscription.items.data[0].price.id;
         
         // Get the plan from the price ID
-        const plan = PRICE_TO_PLAN[priceId] || 'basic';
+        const plan = priceToPlan[priceId] || 'basic';
 
         console.log('Initializing credits for user:', {
           clerkUserId,
@@ -177,7 +177,7 @@ export async function POST(req: Request) {
 
         // Get the plan from the price ID
         const priceId = subscription.items.data[0].price.id;
-        const plan = PRICE_TO_PLAN[priceId] || 'basic';
+        const plan = priceToPlan[priceId] || 'basic';
 
         // Add monthly credits when payment succeeds
         const user = await initializeUserCredits(

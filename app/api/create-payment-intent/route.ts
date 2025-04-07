@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST() {
   try {
     // Get the price from your Stripe pricing table
-    const price = await stripe.prices.retrieve('price_1R9ZdBPfnvEhFMZfpu6G5mvY');
+    const price = await stripe.prices.retrieve('price_1RB7qfB3GdKAaOkrjpPCnIrl');
     
     if (!price.unit_amount) {
       throw new Error('Price unit amount is missing');

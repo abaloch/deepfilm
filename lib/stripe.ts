@@ -5,5 +5,5 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 export const PRICE_IDS = {
-  basic: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY' // $15/month for 6 credits
+  basic: 'price_1RB7qfB3GdKAaOkrjpPCnIrl' // $15/month for 6 credits
 } as const;

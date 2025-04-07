@@ -20,7 +20,7 @@ export default function SubscribePage() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        lookup_key: 'price_1R9ZdBPfnvEhFMZfpu6G5mvY'
+        lookup_key: 'price_1RB7qfB3GdKAaOkrjpPCnIrl'
       }),
     })
       .then((res) => {
