@@ -12,7 +12,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       }}
-      afterSignOutUrl="/"
     >
       {children}
     </ClerkProvider>
