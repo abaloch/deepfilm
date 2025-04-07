@@ -4,7 +4,7 @@ export const CREDITS_PER_MONTH = {
   basic: 6
 } as const;
 
-export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'inactive';
+export type SubscriptionStatus = 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'unpaid';
 
 export async function initializeUserCredits(
   clerkId: string,
@@ -26,15 +26,21 @@ export async function initializeUserCredits(
   subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
 
   try {
+    console.log('Supabase connection details:', {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    });
+
     // Check if user already exists
     const { data: users, error: fetchError } = await supabase
       .from('users')
       .select('*')
       .eq('clerk_id', clerkId);
 
-    console.log('Existing user check:', {
-      exists: users && users.length > 0,
-      error: fetchError
+    console.log('Existing user check result:', {
+      users,
+      error: fetchError,
+      clerkId
     });
 
     if (fetchError) {

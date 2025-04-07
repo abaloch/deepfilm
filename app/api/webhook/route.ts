@@ -1,7 +1,7 @@
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { initializeUserCredits, CREDITS_PER_MONTH, updateSubscriptionStatus } from '@/lib/credits';
+import { initializeUserCredits, CREDITS_PER_MONTH, updateSubscriptionStatus, SubscriptionStatus } from '@/lib/credits';
 import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
 
@@ -9,6 +9,28 @@ import { supabase } from '@/lib/supabase';
 const priceToPlan: Record<string, 'basic'> = {
   'price_1RB7qfB3GdKAaOkrjpPCnIrl': 'basic'
 };
+
+// Map Stripe subscription status to our application status
+function mapStripeStatusToAppStatus(stripeStatus: string): 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'unpaid' {
+  switch (stripeStatus) {
+    case 'active':
+      return 'active';
+    case 'trialing':
+      return 'trialing';
+    case 'past_due':
+      return 'past_due';
+    case 'canceled':
+      return 'canceled';
+    case 'incomplete':
+      return 'incomplete';
+    case 'incomplete_expired':
+      return 'incomplete_expired';
+    case 'unpaid':
+      return 'unpaid';
+    default:
+      return 'incomplete';
+  }
+}
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -92,19 +114,36 @@ export async function POST(req: Request) {
           plan,
           subscriptionId: subscription.id,
           status: subscription.status,
-          priceId
+          priceId,
+          supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
         });
 
         // Initialize credits for the user
-        const user = await initializeUserCredits(
-          clerkUserId,
-          customerEmail,
-          plan,
-          subscription.id,
-          subscription.status as any
-        );
+        try {
+          const mappedStatus = mapStripeStatusToAppStatus(subscription.status);
+          console.log('Mapping Stripe status to app status:', {
+            stripeStatus: subscription.status,
+            mappedStatus
+          });
 
-        console.log('User credits initialized:', user);
+          const user = await initializeUserCredits(
+            clerkUserId,
+            customerEmail,
+            plan,
+            subscription.id,
+            mappedStatus
+          );
+
+          console.log('User credits initialized successfully:', {
+            userId: user?.id,
+            credits: user?.credits,
+            subscriptionStatus: user?.subscription_status
+          });
+        } catch (error) {
+          console.error('Failed to initialize user credits:', error);
+          throw error;
+        }
 
         break;
       }
@@ -129,9 +168,10 @@ export async function POST(req: Request) {
           return new NextResponse('Missing clerkUserId in subscription metadata', { status: 400 });
         }
 
+        const mappedStatus = mapStripeStatusToAppStatus(subscription.status);
         await updateSubscriptionStatus(
           clerkUserId,
-          subscription.status as any,
+          mappedStatus,
           subscription.id
         );
 
