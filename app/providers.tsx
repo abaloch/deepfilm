@@ -12,41 +12,41 @@ export function Providers({ children }: { children: React.ReactNode }) {
           socialButtonsVariant: "iconButton",
         },
         variables: {
-          colorPrimary: "#ffffff",
-          colorText: "#ffffff",
-          colorBackground: "#000000",
-          colorInputBackground: "#000000",
-          colorInputText: "#ffffff",
+          colorPrimary: "#000000",
+          colorText: "#000000",
+          colorBackground: "#ffffff",
+          colorInputBackground: "#ffffff",
+          colorInputText: "#000000",
         },
         elements: {
           userButtonPopoverCard: {
             pointerEvents: 'auto',
           },
           formButtonPrimary: {
-            backgroundColor: "#ffffff",
-            color: "#000000",
+            backgroundColor: "#000000",
+            color: "#ffffff",
             "&:hover": {
-              backgroundColor: "#ffffff",
+              backgroundColor: "#000000",
               opacity: 0.9,
             },
           },
           card: {
-            backgroundColor: "#000000",
+            backgroundColor: "#ffffff",
             boxShadow: "none",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(0, 0, 0, 0.1)",
           },
           headerTitle: {
-            color: "#ffffff",
+            color: "#000000",
           },
           headerSubtitle: {
-            color: "#ffffff",
+            color: "#000000",
           },
           socialButtonsBlockButton: {
-            backgroundColor: "#000000",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            color: "#ffffff",
+            backgroundColor: "#ffffff",
+            border: "1px solid rgba(0, 0, 0, 0.1)",
+            color: "#000000",
             "&:hover": {
-              backgroundColor: "#000000",
+              backgroundColor: "#ffffff",
               opacity: 0.9,
             },
           },
