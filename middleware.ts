@@ -7,10 +7,7 @@ const publicPaths = [
   "/",
   "/sign-in",
   "/sign-up",
-  "/api/webhooks/stripe",
   "/api/create-checkout-session",
-  "/api/session-status",
-  "/api/verify-session",
   "/api/update-subscription",
   "/subscribe/success",
   "/beautiful-woman-closeup.mp4"
@@ -24,7 +21,6 @@ function isPublicPath(path: string) {
 
 export default authMiddleware({
   publicRoutes: publicPaths,
-  ignoredRoutes: ["/api/webhooks/stripe"],
   async afterAuth(auth, req) {
     const { userId } = auth;
     const path = req.nextUrl.pathname;
