@@ -109,13 +109,13 @@ export default function LandingPage() {
             }}>
               <video 
                 ref={videoRef}
-                src="/beautiful-woman-closeup.mp4" 
-                autoPlay={true}
+                src="/Bring Your Imaginary Scenes to Life with DEEPFILM-2.mp4" 
+                controls={true}
                 loop={true}
                 muted={true}
                 playsInline={true}
                 preload="auto"
-                poster="/woman-closeup.png"
+                poster="/Screenshot 2025-04-11 at 11.22.29 PM.png"
                 className="w-full h-full object-cover"
                 style={{
                   width: '100%',
