@@ -81,7 +81,7 @@ export default function LandingPage() {
       
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 mt-20">
+      <main className="container mx-auto px-4 mt-10">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -90,7 +90,9 @@ export default function LandingPage() {
           className="font-medium tracking-tight mx-auto text-center" 
           style={{ fontSize: '80px', lineHeight: '1', maxWidth: '800px' }}
         >
-          Turn Words into Cinema
+          Introducing Iris: 
+          <br />
+          Your AI Director
         </motion.h1>
         
         {/* Video Section */}
@@ -100,7 +102,7 @@ export default function LandingPage() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="relative max-w-[1000px] mx-auto" 
-          style={{ marginTop: '120px', marginBottom: '120px' }}
+          style={{ marginTop: '50px', marginBottom: '120px' }}
         >
           <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
             <div className="absolute inset-0 rounded-lg overflow-hidden" style={{ 
@@ -109,7 +111,7 @@ export default function LandingPage() {
             }}>
               <video 
                 ref={videoRef}
-                src="/Bring Your Imaginary Scenes to Life with DEEPFILM-2.mp4" 
+                src="/Iris-2.mp4" 
                 controls={true}
                 loop={true}
                 muted={true}
