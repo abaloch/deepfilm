@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     // Update the user in Supabase
     const { error: updateError } = await supabase
       .from('users')
-      .update({
+      .upsert({
         email,
         clerk_id: userId,
         stripe_customer_id: session.customer as string,
@@ -60,8 +60,9 @@ export async function POST(req: Request) {
         subscription_status: 'active',
         credits: INITIAL_CREDITS,
         updated_at: new Date().toISOString()
-      })
-      .eq('clerk_id', userId);
+      }, {
+        onConflict: 'clerk_id'
+      });
 
     if (updateError) {
       console.error('Error updating user:', updateError);
