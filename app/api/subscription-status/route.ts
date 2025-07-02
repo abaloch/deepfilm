@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { stripe } from '@/lib/stripe';
 
 export async function GET() {
@@ -42,7 +42,7 @@ export async function GET() {
     }
 
     // First try to find user by clerk_id
-    const { data: existingUser, error: clerkIdError } = await supabase
+    const { data: existingUser, error: clerkIdError } = await supabaseAdmin
       .from('users')
       .select('credits, subscription_status, stripe_customer_id, stripe_subscription_id')
       .eq('clerk_id', userId)
@@ -50,7 +50,7 @@ export async function GET() {
 
     if (clerkIdError && clerkIdError.code === 'PGRST116') {
       // If not found by clerk_id, try to find by email
-      const { data: emailUser, error: emailError } = await supabase
+      const { data: emailUser, error: emailError } = await supabaseAdmin
         .from('users')
         .select('credits, subscription_status, stripe_customer_id, stripe_subscription_id')
         .eq('email', email)
@@ -59,7 +59,7 @@ export async function GET() {
       if (emailError && emailError.code === 'PGRST116') {
         // No user found with either clerk_id or email, create new user
         console.log('Creating new user');
-        const { data: newUser, error: insertError } = await supabase
+        const { data: newUser, error: insertError } = await supabaseAdmin
           .from('users')
           .insert({
             clerk_id: userId,
@@ -91,7 +91,7 @@ export async function GET() {
         });
       } else if (emailUser) {
         // Found user by email, update their clerk_id
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from('users')
           .update({ clerk_id: userId })
           .eq('email', email);
@@ -111,7 +111,7 @@ export async function GET() {
 
             if (subscriptions.data.length === 0) {
               // If no active subscription in Stripe, update our database
-              await supabase
+              await supabaseAdmin
                 .from('users')
                 .update({ subscription_status: 'inactive' })
                 .eq('email', email);
@@ -162,7 +162,7 @@ export async function GET() {
 
         if (subscriptions.data.length === 0) {
           // If no active subscription in Stripe, update our database
-          await supabase
+          await supabaseAdmin
             .from('users')
             .update({ subscription_status: 'inactive' })
             .eq('clerk_id', userId);
